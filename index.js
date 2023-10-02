@@ -6,9 +6,24 @@ const server = require("http").createServer(app);
 
 app.use(express.static("client/build"));
 
-app.get("/", function (req, res) {
-	res.sendFile("index.html");
-});
+// app.get("*", function (req, res) {
+// 	res.sendFile("index.html");
+// });
+
+if (process.env.NODE_ENV === "production") {
+	const path = require("path");
+	app.use(express.static(path.resolve(__dirname, "client", "build")));
+	app.get("*", (req, res) => {
+		res.sendFile(
+			path.resolve(__dirname, "client", "build", "index.html"),
+			function (err) {
+				if (err) {
+					res.status(500).send(err);
+				}
+			}
+		);
+	});
+}
 
 server.listen(process.env.PORT || 8000, () => {
 	console.log("Server Started");
